@@ -1,0 +1,7 @@
+# buzzer config file
+
+group1 = BuzzerGroup(
+    buttons=(12, 16, 18),
+    pushed_level = 0,
+    handler = multi )
+
