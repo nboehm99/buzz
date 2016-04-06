@@ -52,9 +52,14 @@ class BuzzerGroup:
 
     def get_action(self):
         b = self.get_buttons()
-        action = self.handler.parse(b)
-        if action != 0:
-            action = self.sampleIds[action]
+        bcode = self.handler.parse(b)
+        action = 0
+        if bcode != 0:
+            try:
+                action = self.sampleIds[bcode]
+            except KeyError:
+                # if bcode is not in list, we'll return the default value (0)
+                pass
         return action
 
 
