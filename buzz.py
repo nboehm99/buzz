@@ -65,14 +65,15 @@ class MultiHandler:
                 a = a + self.bstates**2 + self.bstates
         else:
             a = (self.bstates * self.pressed2) + self.pressed1
-        print "pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.pressed1, self.pressed2, self.pressedLong, a)
+        print "pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.pressed1,
+                                                                                  self.pressed2, pressedLong, a)
         self.pressed1 = 0
         self.pressed2 = 0
         return a
 
     def stateA(self, btn):
         # print "state A - nothing pressed so far"
-        if btn != 0
+        if btn != 0:
             self.pressed1 = btn
             # go to state B
             self.state = self.stateB
