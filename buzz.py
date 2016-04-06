@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import os
 import traceback
+import buzzlib
 
 #LED=11
 num_Buttons = 3
@@ -49,18 +50,18 @@ class SimpleHandler:
 
 class MultiHandler:
     def __init__(self):
+        self.state=self.stateA # initial state
         self.pressed1 = 0
         self.pressed2 = 0
         self.prev = 0
         self.hold = 0
-        self.pressedLong = 0
         self.bstates = (1 << num_Buttons)-1 
     
-    def action(self):
+    def action(self, pressedLong=False):
         a = 0
         if self.pressed2 == 0:
             a = self.pressed1
-            if self.pressedLong:
+            if pressedLong:
                 a = a + self.bstates**2 + self.bstates
         else:
             a = (self.bstates * self.pressed2) + self.pressed1
@@ -69,50 +70,70 @@ class MultiHandler:
         self.pressed2 = 0
         return a
 
+    def stateA(self, btn):
+        # print "state A - nothing pressed so far"
+        if btn != 0
+            self.pressed1 = btn
+            # go to state B
+            self.state = self.stateB
+        return 0
+
+    def stateB(self, btn):
+        # print "state B - first press"
+        if btn == 0:
+            # released - go to state D
+            self.state = self.stateD
+        elif self.hold == 1:
+            # update buttons
+            self.pressed1 = btn
+        elif self.hold == 15:
+            # long press - perform action and go to state C
+            self.state = self.stateC
+            return self.action( pressedLong=True )
+        return 0
+    
+    def stateC(self, btn):
+        # print "state C - long pressed; waiting for release"
+        if btn == 0:
+            # go to state A
+            self.state = self.stateA
+        return 0
+
+    def stateD(self, btn):
+        # print "state D - released; waiting for double"
+        if btn != 0:  
+            # double click - go to state E
+            self.pressed2 = btn
+            self.state = self.stateE
+        elif self.hold == 4:
+            # time out - perform (single-click) action and go to state A
+            self.state = self.stateA
+            return self.action()
+        return 0
+
+    def stateE(self, btn):
+        # print "state E - double click; waiting for release"
+        if btn == 0:
+            # release - perform action and go to state A
+            self.state = self.stateA
+            return self.action()
+        elif self.hold == 1:
+            # update buttons
+            self.pressed2 = btn
+        return 0
 
     def parse(self, btn):
-        # count same cycles (for de-bouncing)
+        # count same cycles (used in several states)
         if self.prev == btn:
             self.hold = self.hold + 1
         else:
             self.hold = 0
 
-        if self.pressedLong:
-            # print "state C - long pressed; waiting for release"
-            if btn == 0:
-                self.pressedLong = False
-        elif self.pressed1 == 0:
-            # print "state A - nothing pressed so far"
-            if self.hold == 1:
-                # trans to B
-                self.pressed1 = btn
-        elif self.pressed2 != 0:
-            # print "state E - double click; waiting for release"
-            if btn == 0:
-                return self.action()
-            if self.hold == 1:
-                # update buttons
-                self.pressed2 = btn
-        else:
-            if self.prev == 0:
-                # print "state D - released; waiting for double"
-                if self.hold == 3:
-                    return self.action()
-                elif btn != 0:  
-                    # trans to E
-                    self.pressed2 = btn
-            else:
-                # print "state B - first press"
-                if btn != 0 and self.hold == 1:
-                    # update buttons
-                    self.pressed1 = btn
-                if self.hold == 20:
-                    # trans to C
-                    self.pressedLong = True
-                    return self.action()
+        # call state machine
+        act = self.state(btn)
 
         self.prev = btn
-        return 0
+        return act
 
 
 def loop():
@@ -124,7 +145,7 @@ def loop():
         action = handler.parse(b)
        
         if action != 0:
-            os.system('mpc play %d' % (action))
+            buzzlib.play(action)
 
         # tick
         time.sleep(0.05)
