@@ -37,12 +37,14 @@ def register(sample):
 def play(idx, loop=False):
     if idx >= 0:
         aidx = idx - 1
-        print "Buzzing sound", registered_samples[aidx].get_path()
         mpc = _connect()
+        print "Buzzing sound", registered_samples[aidx].get_path() ,
         if registered_samples[aidx].is_loop():
             mpc.repeat(1)
+            print "(looping)"
         else:
             mpc.repeat(0)
+            print
         mpc.play(aidx)
         _disconnect(mpc)
 
