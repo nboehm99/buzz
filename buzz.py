@@ -8,13 +8,13 @@ import buzzlib
 
 def setup(groups):
     GPIO.setmode(GPIO.BOARD)
+    offset = 0
     for g in groups:
-        g.setup_pins()
+        offset = offset + g.setup_pins(offset)
 
 
 def loop(groups):
     # top level loop
-    #handler = SimpleHandler()
     while True:
         action = 0
         for g  in groups:

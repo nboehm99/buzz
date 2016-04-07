@@ -7,6 +7,10 @@ class BasicHandler:
     def __init__(self, num_buttons):
         self.prev = 0
         self.hold = 0
+        self.num_actions = (2**num_buttons) - 1
+
+    def get_num_actions(self):
+        return self.num_actions
 
     def parse(self, btn):
         # count same cycles (for de-bouncing)
@@ -30,7 +34,11 @@ class MultiHandler:
         self.pressed2 = 0
         self.prev = 0
         self.hold = 0
-        self.bstates = (1 << num_buttons)-1 
+        self.bstates = (2**num_buttons)-1 
+        self.num_actions = (2**(2*num_buttons)) - 1
+
+    def get_num_actions(self):
+        return self.num_actions
     
     def action(self, pressedLong=False):
         a = 0
