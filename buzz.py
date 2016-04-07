@@ -13,7 +13,7 @@ import config
 
 import RPi.GPIO as GPIO
 
-VERSION="0.5"
+VERSION="0.6"
 
 def sighandler(signum, frame):
     print "Received SIGHUP. Restarting."
@@ -70,9 +70,9 @@ if args.version:
     sys.exit(0)
 
 groups = config.load(args.configfile)
-setup(groups)
 
 try:
+    setup(groups)
     loop(groups)
 except:
     traceback.print_exc()

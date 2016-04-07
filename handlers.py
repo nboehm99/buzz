@@ -30,8 +30,7 @@ class AbstractHandler(object):
     def __init__(self, **kwargs):
         pass
 
-    def get_sample_index(self, s):
-        idesc = s.get_index()
+    def get_sample_index(self, idesc):
         if isinstance( idesc, ( int, long ) ):
             return idesc
         else:
@@ -55,7 +54,7 @@ class BasicHandler(AbstractHandler):
 
     def parse_buttondesc(self, desc):
         d = desc.upper()
-        mo = parse_buttondesc.match(d)
+        mo = btn_parser.match(d)
         g = mo.groups()
         if g:
             b1 = str_to_num(g[0], self.num_buttons)
@@ -112,7 +111,7 @@ class MultiHandler(AbstractHandler):
     
     def parse_buttondesc(self, desc):
         d = desc.upper()
-        mo = parse_buttondesc.match(d)
+        mo = btn_parser.match(d)
         g = mo.groups()
         if g:
             b1 = str_to_num(g[0], self.num_buttons)
@@ -149,7 +148,7 @@ class MultiHandler(AbstractHandler):
         return self.bstates**2 + self.bstates + btn
 
     def encode(self, btn1, btn2=0):
-        return (self.bstates * self.btn2) + btn1
+        return (self.bstates * btn2) + btn1
 
     def action(self, pressedLong=False):
         a = 0
@@ -240,7 +239,7 @@ class DoubleHandler(MultiHandler):
 
     def parse_buttondesc(self, desc):
         d = desc.upper()
-        mo = parse_buttondesc.match(d)
+        mo = btn_parser.match(d)
         g = mo.groups()
         if g:
             b1 = str_to_num(g[0], self.num_buttons)

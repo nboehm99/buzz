@@ -17,7 +17,6 @@ class BuzzerGroup:
         self.offset = 0
         self.prio = prio
         self.samples = ()
-        self.sampleIds = {}
 
     def set_samples(self, *samples):
         self.samples = samples
@@ -30,13 +29,10 @@ class BuzzerGroup:
         # register samples
         num_actions = self.handler.get_num_actions()
         for s in self.samples:
-            id = handler.get_sample_index(s)
-            if id > num_actions:
+            action = s.setup(self.offset, self.handler)
+            if action > num_actions:
                 print "Warning: Id %s out of range (1..%d). Ignored." % (id, num_actions)
-            elif id in self.sampleIds.keys():
-                print "Warning: Id %s used multiple times. Ignored." % id
             else:
-                s.set_offset(self.offset)
                 samplelib.register(s)
         return num_actions
 
@@ -61,24 +57,24 @@ class BuzzerGroup:
 
 class Sample:
     base_dir = ''
-    def __init__(self, index, filename, loop=False):
-        self.index = index
+    def __init__(self, buttons, filename, loop=False):
+        self.buttons = buttons
+        self.action = 0
         self.filename = filename
         if Sample.base_dir:
             self.path=Sample.base_dir + '/' + filename
         else:
             self.path = filename
         self.loop = loop
-        self.offset = 0
 
-    def set_offset(self, offset):
-        self.offset = offset
+    def setup(self, offset, handler):
+        a = handler.get_sample_index(self.buttons)
+        if a > 0:
+            self.action = a + offset
+        return a
 
     def get_action(self):
-        return self.index + self.offset
-
-    def get_index(self):
-        return self.index
+        return self.action
 
     def get_path(self):
         return self.path
