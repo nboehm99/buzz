@@ -35,5 +35,8 @@ class BuzzerGroup:
 
     def get_action(self):
         b = self.get_buttons()
-        return self.handler.parse(b) + self.offset
+        action = self.handler.parse(b)
+        if action != 0:
+            action = action + self.offset
+        return action
 
