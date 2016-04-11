@@ -42,7 +42,8 @@ class AbstractHandler(object):
 
 class BasicHandler(AbstractHandler):
     """Basic Handler - Can handle presses for all combination of the buttons"""
-    def __init__(self, num_buttons, debounce=1, **kwargs):
+    def __init__(self, name, num_buttons, debounce=1, **kwargs):
+        self.name = name
         self.prev = 0
         self.hold = 0
         self.debounce = debounce
@@ -81,7 +82,7 @@ class BasicHandler(AbstractHandler):
         r = 0
         if (btn != 0) and (self.hold == self.debounce):
             r = btn
-            print "[BH] pressed --> action = %d" % r
+            print "[BH - %s] pressed --> action = %d" % (self.name, r)
 
         self.prev = btn
         return r
@@ -90,8 +91,9 @@ class BasicHandler(AbstractHandler):
 class MultiHandler(AbstractHandler):
     """Multi Handler - Can handle single presses, long presses and double presses with different combination
        of the buttons"""
-    def __init__(self, num_buttons, debounce=1, longpress=35, doubletimeout=10, **kwargs):
+    def __init__(self, name, num_buttons, debounce=1, longpress=35, doubletimeout=10, **kwargs):
         # config
+        self.name = name
         self.num_buttons = num_buttons
         self.debounce = debounce
         self.longpress = longpress
@@ -158,8 +160,8 @@ class MultiHandler(AbstractHandler):
                 a = self.encode_long(a)
         else:
             a = self.encode(self.pressed1, self.pressed2)
-        print "[MH] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.pressed1,
-                                                                                  self.pressed2, pressedLong, a)
+        print "[MH - %s] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.name, 
+                                                            self.pressed1, self.pressed2, pressedLong, a)
         self.pressed1 = 0
         self.pressed2 = 0
         return a
@@ -232,8 +234,8 @@ class MultiHandler(AbstractHandler):
 class DoubleHandler(MultiHandler):
     """Double Handler - Slightly simplified version of Multi Hander, that cannot do double presses
        with different button combinations for first and second press"""
-    def __init__(self, num_buttons, **kwargs):
-        super(DoubleHandler, self).__init__(num_buttons, **kwargs)
+    def __init__(self, name, num_buttons, **kwargs):
+        super(DoubleHandler, self).__init__(name, num_buttons, **kwargs)
         # now some overrides
         self.num_actions = 3 * self.bstates
 
@@ -282,8 +284,8 @@ class DoubleHandler(MultiHandler):
                 a = self.encode_long(self.pressed1)
         else:
             a = self.encode_double(self.pressed2)
-        print "[DH] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.pressed1,
-                                                                                  self.pressed2, pressedLong, a)
+        print "[DH - %s] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.name,
+                                                            self.pressed1, self.pressed2, pressedLong, a)
         self.pressed1 = 0
         self.pressed2 = 0
         return a
