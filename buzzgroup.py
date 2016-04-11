@@ -7,11 +7,11 @@ import RPi.GPIO as GPIO
 
 # This is basically the workhorse
 class BuzzerGroup:
-    def __init__(self, buttons, pushed_level = 0, handler = handlers.BasicHandler, prio = 1 ):
+    def __init__(self, buttons, prio = 1, pushed_level = 0, handler = handlers.BasicHandler, handler_opts = {} ):
         self.buttons = buttons
         self.num_buttons = len(buttons)
         self.pushed_level = pushed_level
-        self.handler = handler(self.num_buttons)
+        self.handler = handler(self.num_buttons, **handler_opts)
         self.offset = 0
         self.prio = prio
 

@@ -17,6 +17,7 @@ class SimpleEcho(WebSocket):
         print "command:", msg
         mo = rbtp_parser.match(msg)
         if mo:
+#            print "mpd play", int(mo.groups()[0])
             buzzlib.play(int(mo.groups()[0]))
 
     def handleConnected(self):
@@ -26,6 +27,6 @@ class SimpleEcho(WebSocket):
         print self.address, 'closed'
 
 print "Starting server on localhost:%d" % rbtp_ws_port
-server = SimpleWebSocketServer('buzz', rbtp_ws_port, SimpleEcho)
+server = SimpleWebSocketServer('', rbtp_ws_port, SimpleEcho)
 server.serveforever()
 

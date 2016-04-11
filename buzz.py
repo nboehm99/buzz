@@ -15,6 +15,7 @@ def setup(groups):
 
 def loop(groups):
     # top level loop
+    tick = config.Options['TickTime']
     while True:
         action = 0
         for g  in groups:
@@ -25,7 +26,7 @@ def loop(groups):
             buzzlib.play(action)
 
         # tick
-        time.sleep(0.05)
+        time.sleep(tick)
 
 
 groups = config.load()
