@@ -1,7 +1,17 @@
 # buzzer config file
 
+# Options['TickTime'] = 0.02
+
 group1 = BuzzerGroup(
-    buttons=(12, 16, 18),
-    pushed_level = 0,
-    handler = multi )
+    buttons = (12, 16, 18),
+    pushed_level = 0)
+
+# timings = { 'debounce': 1, 'longpress': 35, 'doubletimeout': 10 }
+
+#group2 = BuzzerGroup(
+#    buttons = (32, 40),
+#    prio = 2
+#    pushed_level = 0,
+#    handler = multi,
+#    handler_opts = timings)
 

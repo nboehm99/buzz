@@ -3,10 +3,10 @@
 # provides several button handlers to choose from
 #
 
-class AbstractHandler:
+class AbstractHandler(object):
     """Abstract button handler. Does nothing except serving as a parent class for
        reflection purposes"""
-    def __init__(self, num_buttons):
+    def __init__(self, **kwargs):
         pass
 
     def parse(self, btn):
@@ -15,7 +15,7 @@ class AbstractHandler:
 
 class BasicHandler(AbstractHandler):
     """Basic Handler - Can handle presses for all combination of the buttons"""
-    def __init__(self, num_buttons, debounce=1):
+    def __init__(self, num_buttons, debounce=1, **kwargs):
         self.prev = 0
         self.hold = 0
         self.debounce = debounce
@@ -32,7 +32,7 @@ class BasicHandler(AbstractHandler):
             self.hold = 0
 
         r = 0
-        if self.hold == self.debounce:
+        if (btn != 0) and (self.hold == self.debounce):
             r = btn
             print "[BH] pressed --> action = %d" % r
 
@@ -43,7 +43,7 @@ class BasicHandler(AbstractHandler):
 class MultiHandler(AbstractHandler):
     """Multi Handler - Can handle single presses, long presses and double presses with different combination
        of the buttons"""
-    def __init__(self, num_buttons, debounce=1, longpress=35, doubletimeout=10):
+    def __init__(self, num_buttons, debounce=1, longpress=35, doubletimeout=10, **kwargs):
         # config
         self.debounce = debounce
         self.longpress = longpress
@@ -122,7 +122,7 @@ class MultiHandler(AbstractHandler):
             # release - perform action and go to state A
             self.state = self.stateA
             return self.action()
-        elif self.hold == debounce:
+        elif self.hold == self.debounce:
             # update buttons
             self.pressed2 = btn
         return 0
@@ -143,8 +143,8 @@ class MultiHandler(AbstractHandler):
 class DoubleHandler(MultiHandler):
     """Double Handler - Slightly simplified version of Multi Hander, that cannot do double presses
        with different button combinations for first and second press"""
-    def __init__(self, num_buttons, debounce=1, longpress=35, doubletimeout=10):
-        super(DoubleHandler, self).__init__(num_buttons, debounce, longpress, doubletimeout)
+    def __init__(self, num_buttons, **kwargs):
+        super(DoubleHandler, self).__init__(num_buttons, **kwargs)
         # now some overrides
         self.num_actions = 3 * self.bstates
 
@@ -153,9 +153,9 @@ class DoubleHandler(MultiHandler):
         if self.pressed2 == 0:
             a = self.pressed1
             if pressedLong:
-                a = a + self.bstates
+                a = a + (self.bstates * 2)
         else:
-            a = self.pressed2 + (2 * self.bstates)
+            a = self.pressed2 + self.bstates
         print "[DH] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.pressed1,
                                                                                   self.pressed2, pressedLong, a)
         self.pressed1 = 0

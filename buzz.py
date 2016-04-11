@@ -5,6 +5,7 @@ import time
 import traceback
 import config
 import buzzlib
+import argparse
 
 def setup(groups):
     GPIO.setmode(GPIO.BOARD)
@@ -28,9 +29,14 @@ def loop(groups):
         # tick
         time.sleep(tick)
 
+argp = argparse.ArgumentParser(description='Buzz.')
+argp.add_argument('-c', dest='configfile', action='store',
+        default='buzz.cfg', help='config file (default: buzz.cfg)')
+args = argp.parse_args()
 
-groups = config.load()
+groups = config.load(args.configfile)
 setup(groups)
+
 try:
     loop(groups)
 except:
