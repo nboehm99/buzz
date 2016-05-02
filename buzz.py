@@ -13,7 +13,10 @@ import config
 
 import RPi.GPIO as GPIO
 
-VERSION="0.6"
+VERSION="0.7"
+
+SystemSounds = ['Startup', 'Shutdown']
+SystemOffset = 0
 
 def sighandler(signum, frame):
     print "Received SIGHUP. Restarting."
@@ -26,14 +29,28 @@ def sighandler(signum, frame):
     # should be unrechable
     sys.exit(1)
 
+def play_system(name):
+    if name in SystemSounds:
+        samplelib.play(SystemOffset + SystemSounds.index(name) + 1)
 
 def setup(groups):
+    global SystemOffset
     signal.signal(signal.SIGHUP, sighandler)
     buzzwsd.start_daemon()
     GPIO.setmode(GPIO.BOARD)
     offset = 0
     for g in groups:
         offset = offset + g.setup(offset)
+    # register system sounds
+    SystemOffset = offset
+    for k in config.System.keys():
+        if k in SystemSounds:
+            s = config.System[k]
+            if s:
+                s.setup(SystemOffset, index=(SystemSounds.index(k)+1))
+                samplelib.register(s)
+    # Done
+    play_system('Startup')
 
 
 def loop(groups):
@@ -78,5 +95,10 @@ except:
     traceback.print_exc()
 
 cleanup()
+
+try:
+    play_system('Shutdown')
+except:
+    pass
 
 

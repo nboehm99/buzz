@@ -24,11 +24,12 @@ def register(sample):
         mpc.clear()
     path = sample.get_path()
     if os.path.isfile(path):
-        print "Adding %s" % ('file://' + path)
+        action = sample.get_action()
+        print "Adding %d --> %s" % (action, path)
         mpc.add('file://' + path)
         registered_samples.append(sample)
         idx = len(registered_samples)
-        sample_map[sample.get_action()] = idx-1
+        sample_map[action] = idx-1
     else:
         print "Warning: invalid sample path '%s'. Ignored." % path
     _disconnect(mpc)

@@ -9,12 +9,17 @@ import RPi.GPIO as GPIO
 
 # This is basically the workhorse
 class BuzzerGroup:
-    def __init__(self, name, buttons, prio = 1, pushed_level = 0, handler = handlers.BasicHandler, handler_opts = {} ):
+    def __init__(self, name, buttons, button_chars = None, prio = 1, pushed_level = 0, handler = handlers.BasicHandler, handler_opts = {} ):
         self.name = name
         self.buttons = buttons
         self.num_buttons = len(buttons)
+        if button_chars:
+            # FIXME: there is so much here that can break undetected...
+            self.button_chars = button_chars[:self.num_buttons]
+        else:
+            self.button_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:self.num_buttons]
         self.pushed_level = pushed_level
-        self.handler = handler(name, self.num_buttons, **handler_opts)
+        self.handler = handler(name, self.button_chars, **handler_opts)
         self.offset = 0
         self.prio = prio
         self.samples = ()
@@ -68,10 +73,15 @@ class Sample:
             self.path = filename
         self.loop = loop
 
-    def setup(self, offset, handler):
-        a = handler.get_sample_index(self.buttons)
+    def setup(self, offset, handler=None, index=None):
+        a = 0
+        if handler:
+            a = handler.get_sample_index(self.buttons)
+        elif index:
+            a = index
         if a > 0:
             self.action = a + offset
+        # print "get_sample_index(%s) --> action %d (%d)" % (self.buttons, a, self.action)
         return a
 
     def get_action(self):

@@ -10,6 +10,8 @@ from buzzgroup import BuzzerGroup, Sample
 # Options with their default - can be oerwritten by config file
 Options = { 'TickTime': 0.02 }
 
+System = { 'Startup': None, 'Shutdown': None }
+
 # Optimistic load function. If anything goes wrong, the exception rushes through to the caller
 def load(filename='buzz.cfg'):
     # set up some shortcuts for use in configuration files
