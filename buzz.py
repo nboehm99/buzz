@@ -1,16 +1,33 @@
 #!/usr/bin/python
 
-import RPi.GPIO as GPIO
+import argparse
+import os
+import signal
+import sys
 import time
 import traceback
-import config
+
 import buzzlib
-import argparse
-import sys
+import config
+
+import RPi.GPIO as GPIO
 
 VERSION="0.4"
 
+def sighandler(signum, frame):
+    print "Received SIGHUP. Restarting."
+    # close GPIO, etc.
+    cleanup()
+    # restart
+    args=["python"]
+    args.extend(sys.argv)
+    os.execvp(args[0], args)
+    # should be unrechable
+    sys.exit(1)
+
+
 def setup(groups):
+    signal.signal(signal.SIGHUP, sighandler)
     GPIO.setmode(GPIO.BOARD)
     offset = 0
     for g in groups:
@@ -33,6 +50,7 @@ def loop(groups):
         time.sleep(tick)
 
 def cleanup():
+    print "Called cleanup()..."
     GPIO.cleanup()
 
 ##############################################################################
