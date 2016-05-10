@@ -8,6 +8,7 @@ import time
 import traceback
 
 import buzzlib
+import buzzwsd
 import config
 
 import RPi.GPIO as GPIO
@@ -28,6 +29,7 @@ def sighandler(signum, frame):
 
 def setup(groups):
     signal.signal(signal.SIGHUP, sighandler)
+    buzzwsd.start_daemon()
     GPIO.setmode(GPIO.BOARD)
     offset = 0
     for g in groups:
@@ -52,6 +54,7 @@ def loop(groups):
 def cleanup():
     print "Called cleanup()..."
     GPIO.cleanup()
+    buzzwsd.stop_daemon()
 
 ##############################################################################
 
