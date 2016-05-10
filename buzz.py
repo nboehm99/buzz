@@ -6,6 +6,9 @@ import traceback
 import config
 import buzzlib
 import argparse
+import sys
+
+VERSION="0.4"
 
 def setup(groups):
     GPIO.setmode(GPIO.BOARD)
@@ -29,10 +32,21 @@ def loop(groups):
         # tick
         time.sleep(tick)
 
+def cleanup():
+    GPIO.cleanup()
+
+##############################################################################
+
 argp = argparse.ArgumentParser(description='Buzz.')
 argp.add_argument('-c', dest='configfile', action='store',
         default='buzz.cfg', help='config file (default: buzz.cfg)')
+argp.add_argument('-v', '--version', dest='version', action='store_true',
+        default=False, help='Print version and exit.')
 args = argp.parse_args()
+
+if args.version:
+    print "buzz.py, version", VERSION
+    sys.exit(0)
 
 groups = config.load(args.configfile)
 setup(groups)
@@ -42,6 +56,6 @@ try:
 except:
     traceback.print_exc()
 
-GPIO.cleanup()
+cleanup()
 
 
