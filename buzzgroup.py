@@ -54,20 +54,26 @@ class BuzzerGroup:
         b = self.get_buttons()
         action = self.handler.parse(b)
         if action != 0:
-            action = action + self.offset
+            action = self.sampleIds[action]
         return action
 
 
 class Sample:
-    basedir = ''
+    base_dir = ''
     def __init__(self, index, filename, loop=False):
         self.index = index
         self.filename = filename
-        if self.basedir:
-            self.path=basedir + '/' + filename
+        if Sample.base_dir:
+            self.path=Sample.base_dir + '/' + filename
         else:
             self.path = filename
         self.loop = loop
 
     def get_index(self):
         return self.index
+
+    def get_path(self):
+        return self.path
+
+    def is_loop(self):
+        return self.loop

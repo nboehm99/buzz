@@ -2,29 +2,47 @@
 # samplelib - common stuff used by different buzzer thingies.
 #
 import mpd
+import os
 
-setup_done = False
 registered_samples = []
 
-def _mpc():
+def _connect():
     mpc = mpd.MPDClient()
-    mpc.connect("localhost", 6600)
+    mpc.connect("/var/run/mpd/socket", 0)
     return mpc
 
-def register(sample):
-    registered_samples.append(sample)
+def _disconnect(mpc):
+    mpc.close()
+    mpc.disconnect()
 
-    return 0
+def register(sample):
+    global registered_samples
+
+    mpc = _connect()
+    if len(registered_samples) == 0:
+        mpc.clear()
+    path = sample.get_path()
+    idx = -1
+    if os.path.isfile(path):
+        print "Adding %s" % ('file://' + path)
+        mpc.add('file://' + path)
+        registered_samples.append(sample)
+        idx = len(registered_samples)
+    else:
+        print "Warning: invalid sample path '%s'. Ignored." % path
+    _disconnect(mpc)
+    return idx
 
 
 def play(idx, loop=False):
-    print "Buzzing sound", idx
-    mpc = _mpc()
-    if loop:
-        mpc.repeat(1)
-    else:
-        mpc.repeat(0)
-    mpc.play(idx-1)
-    mpc.close()
-    mpc.disconnect()
+    if idx >= 0:
+        aidx = idx - 1
+        print "Buzzing sound", registered_samples[aidx].get_path()
+        mpc = _connect()
+        if registered_samples[aidx].is_loop():
+            mpc.repeat(1)
+        else:
+            mpc.repeat(0)
+        mpc.play(aidx)
+        _disconnect(mpc)
 
