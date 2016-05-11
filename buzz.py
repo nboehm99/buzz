@@ -33,7 +33,7 @@ def setup(groups):
     GPIO.setmode(GPIO.BOARD)
     offset = 0
     for g in groups:
-        offset = offset + g.setup_pins(offset)
+        offset = offset + g.setup(offset)
 
 
 def loop(groups):

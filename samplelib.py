@@ -3,10 +3,18 @@
 #
 import mpd
 
+setup_done = False
+registered_samples = []
+
 def _mpc():
     mpc = mpd.MPDClient()
     mpc.connect("localhost", 6600)
     return mpc
+
+def register(sample):
+    registered_samples.append(sample)
+
+    return 0
 
 
 def play(idx, loop=False):

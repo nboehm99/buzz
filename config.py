@@ -5,14 +5,17 @@
 #
 
 import handlers
-from buzzgroup import BuzzerGroup
+from buzzgroup import BuzzerGroup, Sample
 
 # Options with their default - can be oerwritten by config file
 Options = { 'TickTime': 0.02 }
 
 # Optimistic load function. If anything goes wrong, the exception rushes through to the caller
 def load(filename='buzz.cfg'):
-    loc = {'basic':handlers.BasicHandler, 'double':handlers.DoubleHandler, 'multi':handlers.MultiHandler}
+    # set up some shortcuts for use in configuration files
+    loc = {'basic':handlers.BasicHandler, 
+           'double':handlers.DoubleHandler,
+           'multi':handlers.MultiHandler}
     execfile(filename, globals(), loc)
 
     # get buzzer groups
