@@ -7,7 +7,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import re
 import threading
 
-import buzzlib
+import samplelib
 
 rbtp_ws_port = 8055
 rbtp_parser = re.compile("^buzz ([0-9]+)$")
@@ -23,7 +23,7 @@ class SimpleEcho(WebSocket):
         mo = rbtp_parser.match(msg)
         if mo:
 #            print "mpd play", int(mo.groups()[0])
-            buzzlib.play(int(mo.groups()[0]))
+            samplelib.play(int(mo.groups()[0]))
 
     def handleConnected(self):
         print self.address, 'connected'

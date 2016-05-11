@@ -7,7 +7,7 @@ import sys
 import time
 import traceback
 
-import buzzlib
+import samplelib
 import buzzwsd
 import config
 
@@ -46,7 +46,7 @@ def loop(groups):
             if action != 0: break
        
         if action != 0:
-            buzzlib.play(action)
+            samplelib.play(action)
 
         # tick
         time.sleep(tick)
