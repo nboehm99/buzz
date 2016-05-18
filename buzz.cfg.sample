@@ -1,10 +1,19 @@
 # buzzer config file
 
+# shortcut, to avoid absolute paths on samples.
+Sample.base_dir = '/mnt/samples'
+
 # Options['TickTime'] = 0.02
 
 group1 = BuzzerGroup(
     buttons = (12, 16, 18),
     pushed_level = 0)
+
+group1.set_samples(
+    Sample(1, 'sample1.wav'),
+    Sample(2, 'sample2.wav'),
+    Sample(4, 'sample3.wav')
+)
 
 # timings = { 'debounce': 1, 'longpress': 35, 'doubletimeout': 10 }
 
@@ -15,3 +24,7 @@ group1 = BuzzerGroup(
 #    handler = multi,
 #    handler_opts = timings)
 
+#group2.set_samples(
+#    Sample(1, 'foo,mp3'),
+#    Sample(2, 'bar.mp3'),
+#)

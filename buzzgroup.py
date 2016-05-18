@@ -36,8 +36,8 @@ class BuzzerGroup:
             elif id in self.sampleIds.keys():
                 print "Warning: Id %s used multiple times. Ignored." % id
             else:
-                self.sampleIds[id] = samplelib.register(s)
-
+                s.set_offset(self.offset)
+                samplelib.register(s)
         return num_actions
 
     def get_buttons(self):
@@ -51,15 +51,11 @@ class BuzzerGroup:
         return btns
 
     def get_action(self):
+        action = 0
         b = self.get_buttons()
         bcode = self.handler.parse(b)
-        action = 0
         if bcode != 0:
-            try:
-                action = self.sampleIds[bcode]
-            except KeyError:
-                # if bcode is not in list, we'll return the default value (0)
-                pass
+            action = bcode + self.offset
         return action
 
 
@@ -73,6 +69,13 @@ class Sample:
         else:
             self.path = filename
         self.loop = loop
+        self.offset = 0
+
+    def set_offset(self, offset):
+        self.offset = offset
+
+    def get_action(self):
+        return self.index + self.offset
 
     def get_index(self):
         return self.index
@@ -82,3 +85,4 @@ class Sample:
 
     def is_loop(self):
         return self.loop
+
