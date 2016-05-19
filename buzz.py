@@ -13,7 +13,7 @@ import config
 
 import RPi.GPIO as GPIO
 
-VERSION="0.4"
+VERSION="0.5"
 
 def sighandler(signum, frame):
     print "Received SIGHUP. Restarting."
