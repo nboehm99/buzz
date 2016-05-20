@@ -30,7 +30,7 @@ class BuzzerGroup:
         # register samples
         num_actions = self.handler.get_num_actions()
         for s in self.samples:
-            id = s.get_index()
+            id = handler.get_sample_index(s)
             if id > num_actions:
                 print "Warning: Id %s out of range (1..%d). Ignored." % (id, num_actions)
             elif id in self.sampleIds.keys():
