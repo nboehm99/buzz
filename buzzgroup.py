@@ -76,7 +76,7 @@ class Sample:
         a = handler.get_sample_index(self.buttons)
         if a > 0:
             self.action = a + offset
-        print "get_sample_index(%s) --> action %d (%d)" % (self.buttons, a, self.action)
+        # print "get_sample_index(%s) --> action %d (%d)" % (self.buttons, a, self.action)
         return a
 
     def get_action(self):
