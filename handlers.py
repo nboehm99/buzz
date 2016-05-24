@@ -7,18 +7,16 @@
 import re
 
 btn_parser = re.compile('^([A-Z]+)([+-]?)([A-Z]*)')
-A = ord('A')
 
-def str_to_num(s, limit):
+def str_to_num(s, chars):
     v = 0
     for c in s:
-        n = ord(c) - A
-        if n >= limit:
+        n = chars.find(c)
+        if n < 0:
             return -1
         else:
             v = v | (1 << n)
     return v
-
 
 #
 # here come the handlers
@@ -42,12 +40,13 @@ class AbstractHandler(object):
 
 class BasicHandler(AbstractHandler):
     """Basic Handler - Can handle presses for all combination of the buttons"""
-    def __init__(self, num_buttons, debounce=1, **kwargs):
+    def __init__(self, buttons_chars, debounce=1, **kwargs):
         self.prev = 0
         self.hold = 0
         self.debounce = debounce
-        self.num_buttons = num_buttons
-        self.num_actions = (2**num_buttons) - 1
+        self.buttons_chars = buttons_chars
+        self.num_buttons = len(buttons_chars)
+        self.num_actions = (2**self.num_buttons) - 1
 
     def get_num_actions(self):
         return self.num_actions
@@ -57,7 +56,7 @@ class BasicHandler(AbstractHandler):
         mo = btn_parser.match(d)
         g = mo.groups()
         if g:
-            b1 = str_to_num(g[0], self.num_buttons)
+            b1 = str_to_num(g[0], self.buttons_chars)
             if b1 < 0:
                 print "Malformed button description:", desc
                 return 0
@@ -90,15 +89,16 @@ class BasicHandler(AbstractHandler):
 class MultiHandler(AbstractHandler):
     """Multi Handler - Can handle single presses, long presses and double presses with different combination
        of the buttons"""
-    def __init__(self, num_buttons, debounce=1, longpress=35, doubletimeout=10, **kwargs):
+    def __init__(self, buttons_chars, debounce=1, longpress=35, doubletimeout=10, **kwargs):
         # config
-        self.num_buttons = num_buttons
+        self.buttons_chars = buttons_chars
+        self.num_buttons = len(buttons_chars)
         self.debounce = debounce
         self.longpress = longpress
         self.doubletimeout = doubletimeout
         # derived from config
-        self.bstates = (2**num_buttons)-1 
-        self.num_actions = (2**(2*num_buttons)) - 1
+        self.bstates = (2**self.num_buttons)-1 
+        self.num_actions = (2**(2*self.num_buttons)) - 1
         # internal state
         self.state=self.stateA # initial state
         self.pressed1 = 0
@@ -114,7 +114,7 @@ class MultiHandler(AbstractHandler):
         mo = btn_parser.match(d)
         g = mo.groups()
         if g:
-            b1 = str_to_num(g[0], self.num_buttons)
+            b1 = str_to_num(g[0], self.buttons_chars)
             if b1 < 0:
                 print "Malformed button description:", desc
                 return 0
@@ -129,7 +129,7 @@ class MultiHandler(AbstractHandler):
             elif g[1] == '+':
                 # double press
                 if g[2]:
-                    b2 = str_to_num(g[2], self.num_buttons)
+                    b2 = str_to_num(g[2], self.buttons_chars)
                 else:
                     b2 = b1
                 if b2 < 0:
@@ -232,8 +232,8 @@ class MultiHandler(AbstractHandler):
 class DoubleHandler(MultiHandler):
     """Double Handler - Slightly simplified version of Multi Hander, that cannot do double presses
        with different button combinations for first and second press"""
-    def __init__(self, num_buttons, **kwargs):
-        super(DoubleHandler, self).__init__(num_buttons, **kwargs)
+    def __init__(self, buttons_chars, **kwargs):
+        super(DoubleHandler, self).__init__(buttons_chars, **kwargs)
         # now some overrides
         self.num_actions = 3 * self.bstates
 
@@ -242,7 +242,7 @@ class DoubleHandler(MultiHandler):
         mo = btn_parser.match(d)
         g = mo.groups()
         if g:
-            b1 = str_to_num(g[0], self.num_buttons)
+            b1 = str_to_num(g[0], self.buttons_chars)
             if b1 < 0:
                 print "Malformed button description:", desc
                 return 0
