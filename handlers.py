@@ -283,7 +283,7 @@ class DoubleHandler(MultiHandler):
             if pressedLong:
                 a = self.encode_long(self.pressed1)
         else:
-            a = self.encode_double(self.pressed2)
+            a = self.encode_double(self.pressed1 | self.pressed2)
         print "[DH - %s] pressed1 = %d, pressed2 = %d, pressedLong = %s --> action = %d" % (self.name,
                                                             self.pressed1, self.pressed2, pressedLong, a)
         self.pressed1 = 0
