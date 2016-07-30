@@ -9,6 +9,7 @@ import messagequeue
 import inputregistry
 import time
 
+import traceback
 
 class RPiGpioInput:
     def __init__(self, buttons, btnchrs, pushed_level = 0, tick_time=0.02, debounce=1, longpress=35,
@@ -35,9 +36,10 @@ class RPiGpioInput:
             while True:
                 btns = self.get_buttons()
                 self.handle(btns)
-                time.sleep(tick_time)
+                time.sleep(self.tick_time)
         except:
             print "GPIO input loop killed or crashed. Bye!"
+            traceback.print_exc()
 
     def stop(self):
         GPIO.cleanup()
@@ -50,7 +52,7 @@ class RPiGpioInput:
                 btns.add(btn)
         return btns
 
-    def handle(self, btns)
+    def handle(self, btns):
         # count same cycles (used in several states)
         if self.prev == btns:
             self.hold = self.hold + 1

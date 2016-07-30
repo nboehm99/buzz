@@ -11,6 +11,7 @@
 # Options = { 'TickTime': 0.02 }
 
 import buzzwsd
+import gpiobuttons
 import samplelib
 
 import actions
