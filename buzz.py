@@ -31,6 +31,7 @@ def setup():
     for i in inputregistry.getAll():
         it = threading.Thread(target=i.run)
         it.start()
+    messagequeue.send('Startup')
 
 def loop(args):
     if args.interactive: 
@@ -76,5 +77,6 @@ try:
 except:
     traceback.print_exc()
 
+messagequeue.send('Shutdown')
 cleanup()
 
