@@ -62,5 +62,29 @@ class Sample:
             mpc.play(self.idx)
             _disconnect(mpc)
 
+class Volume:
+    def __init__(self, vol, absolute=False):
+        self.vol = vol
+        self.absolute = absolute
+
+
+    def __repr__(self):
+        return "Volume(%d)" % (self.vol)
+
+
+    def run(self):
+        mpc = _connect()
+        oldvol = 0
+        if not self.absolute:
+            s = mpc.status()
+            oldvol = int(s['volume'])
+        newvol = oldvol + self.vol
+        if newvol < 0: newvol = 0
+        if newvol > 100: newvol = 100
+        print "Setting volume to %s" % newvol
+        mpc.setvol(newvol)
+        _disconnect(mpc)
+
 actions.registerActionClass(Sample)
+actions.registerActionClass(Volume)
 
