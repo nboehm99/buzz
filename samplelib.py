@@ -4,6 +4,8 @@
 
 import mpd
 import os
+import random
+
 import actions
 
 registered_samples = []
@@ -62,6 +64,21 @@ class Sample:
             mpc.play(self.idx)
             _disconnect(mpc)
 
+
+class RandomSample:
+    def __init__(self):
+        pass
+
+
+    def __repr__(self):
+        return "RandomSample()"
+
+
+    def run(self):
+        s = random.choice(registered_samples)
+        s.run()
+
+
 class Volume:
     def __init__(self, vol, absolute=False):
         self.vol = vol
@@ -86,5 +103,6 @@ class Volume:
         _disconnect(mpc)
 
 actions.registerActionClass(Sample)
+actions.registerActionClass(RandomSample)
 actions.registerActionClass(Volume)
 
