@@ -1,55 +1,66 @@
 #
-# samplelib - common stuff used by different buzzer thingies.
+# samplelib - Sample playing using mpd
 #
+
 import mpd
 import os
+import actions
 
 registered_samples = []
-sample_map = {}
+basedir = ''
+
 
 def _connect():
     mpc = mpd.MPDClient()
     mpc.connect("/var/run/mpd/socket", 0)
     return mpc
 
+
 def _disconnect(mpc):
     mpc.close()
     mpc.disconnect()
 
-def register(sample):
-    global registered_samples
 
-    mpc = _connect()
-    if len(registered_samples) == 0:
-        mpc.clear()
-    path = sample.get_path()
-    if os.path.isfile(path):
-        action = sample.get_action()
-        print "Adding %d --> %s" % (action, path)
-        mpc.add('file://' + path)
-        registered_samples.append(sample)
-        idx = len(registered_samples)
-        sample_map[action] = idx-1
-    else:
-        print "Warning: invalid sample path '%s'. Ignored." % path
-    _disconnect(mpc)
+class Sample:
+    def __init__(self, path, loop=False):
+        global registered_samples
+        global basedir
+        fullpath = os.path.join(basedir,path)
+        self.path = path
+        self.fullpath = fullpath
+        self.loop = loop
+        self.idx = -1
 
-
-def play(action, loop=False):
-    idx = -1
-    try:
-        idx = sample_map[action]
-    except KeyError:
-        pass
-    if idx >= 0:
         mpc = _connect()
-        print "Buzzing sound", registered_samples[idx].get_path() ,
-        if registered_samples[idx].is_loop():
-            mpc.repeat(1)
-            print "(looping)"
+        if len(registered_samples) == 0:
+            mpc.clear()
+        
+        if os.path.isfile(fullpath):
+            mpc.add('file://' + fullpath)
+            registered_samples.append(self)
+            idx = len(registered_samples)
+            self.idx = idx-1
         else:
-            mpc.repeat(0)
-            print
-        mpc.play(idx)
+            print "Warning: invalid sample path '%s'. Ignored." % path
+            
         _disconnect(mpc)
+        print "A glorious instance of the Sample-class was created (%s)" % path
+
+
+    def __repr__(self):
+        return "Sample('%s', loop=%s)" % (self.path, self.loop)
+
+
+    def run(self):
+        if self.idx >= 0:
+            mpc = _connect()
+            print "Running sample %s" % self
+            if registered_samples[idx].is_loop():
+                mpc.repeat(1)
+            else:
+                mpc.repeat(0)
+            mpc.play(self.idx)
+            _disconnect(mpc)
+
+actions.registerActionClass(Sample)
 
