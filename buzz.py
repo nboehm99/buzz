@@ -10,6 +10,7 @@ import threading
 import config
 import messagequeue
 import output
+import inputregistry
 
 VERSION="0.90"
 
@@ -27,6 +28,9 @@ def sighandler(signum, frame):
 
 def setup():
     signal.signal(signal.SIGHUP, sighandler)
+    for i in inputregistry.getAll():
+        it = threading.Thread(target=i.run)
+        it.start()
 
 def loop(args):
     if args.interactive: 
@@ -43,6 +47,8 @@ def loop(args):
 
 def cleanup():
     print "Called cleanup()..."
+    for i in inputregistry.getAll():
+        i.stop()
     output.stop()
 
 

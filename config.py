@@ -10,14 +10,20 @@
 # Options with their default - can be oerwritten by config file
 # Options = { 'TickTime': 0.02 }
 
-import actions
+import buzzwsd
 import samplelib
+
+import actions
+import inputregistry
 
 # Optimistic load function. If anything goes wrong, the exception rushes through to the caller
 def load(filename='buzz.cfg'):
     # add action classes to config file namespace
-    loc = {'setAction':actions.setAction}
+    loc = {'setAction':actions.setAction,
+           'addInput':inputregistry.addInput}
     for c in actions.allActions:
+        loc[c.__name__] = c
+    for c in inputregistry.allInputClasses:
         loc[c.__name__] = c
     execfile(filename, globals(), loc)
 

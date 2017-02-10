@@ -4,26 +4,22 @@
 #
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
-import re
-import threading
 
-import samplelib
+import messagequeue
+import inputregistry
 
-rbtp_ws_port = 8055
-rbtp_parser = re.compile("^buzz ([0-9]+)$")
 
-wsd_thread = None
-wsd_server = None
+DEFAULT_PORT = 8055
 
-class SimpleEcho(WebSocket):
+
+class BuzzSocket(WebSocket):
 
     def handleMessage(self):
-        msg = self.data[0:15] # 10 billion sounds should be enough for everyone
-        print "command:", msg
-        mo = rbtp_parser.match(msg)
-        if mo:
-#            print "mpd play", int(mo.groups()[0])
-            samplelib.play(int(mo.groups()[0]))
+        print "Received message:", self.data
+        if self.data.startswith('buzz '):
+            msg = self.data[5:]
+            print "command:", msg
+            messagequeue.send(msg)
 
     def handleConnected(self):
         print self.address, 'connected'
@@ -31,19 +27,22 @@ class SimpleEcho(WebSocket):
     def handleClose(self):
         print self.address, 'closed'
 
-def buzzwsd():
-    print "Starting server on localhost:%d" % rbtp_ws_port
-    try:
-        wsd_server.serveforever()
-    except:
-        print "Buzzws server killed or crashed. Bye!"
 
-def start_daemon():
-    global wsd_server, wsd_thread
-    wsd_server = SimpleWebSocketServer('', rbtp_ws_port, SimpleEcho)
-    wsd_thread = threading.Thread(target=buzzwsd)
-    wsd_thread.start()
+class WebSocketInput:
+    def __init__(self, port=DEFAULT_PORT):
+        self.port = port
+        self.wss  = None
 
-def stop_daemon():
-    wsd_server.close()
+    def run(self):
+        print "Starting server on localhost:%d" % self.port
+        self.wss = SimpleWebSocketServer('', self.port, BuzzSocket)
+        try:
+            self.wss.serveforever()
+        except:
+            print "Buzzws server killed or crashed. Bye!"
 
+    def stop(self):
+        self.wss.close()
+
+
+inputregistry.registerClass(WebSocketInput)
