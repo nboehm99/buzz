@@ -55,7 +55,7 @@ class Sample:
         if self.idx >= 0:
             mpc = _connect()
             print "Running sample %s" % self
-            if registered_samples[idx].is_loop():
+            if self.loop:
                 mpc.repeat(1)
             else:
                 mpc.repeat(0)
