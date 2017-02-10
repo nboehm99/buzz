@@ -4,27 +4,20 @@
 # also contains/imports the classes to be used in configuration files
 #
 
-import handlers
-from buzzgroup import BuzzerGroup, Sample
+#import handlers
+#from buzzgroup import BuzzerGroup, Sample
 
 # Options with their default - can be oerwritten by config file
-Options = { 'TickTime': 0.02 }
+# Options = { 'TickTime': 0.02 }
 
-System = { 'Startup': None, 'Shutdown': None }
+import actions
+import samplelib
 
 # Optimistic load function. If anything goes wrong, the exception rushes through to the caller
 def load(filename='buzz.cfg'):
-    # set up some shortcuts for use in configuration files
-    loc = {'basic':handlers.BasicHandler, 
-           'double':handlers.DoubleHandler,
-           'multi':handlers.MultiHandler}
+    # add action classes to config file namespace
+    loc = {'setAction':actions.setAction}
+    for c in actions.allActions:
+        loc[c.__name__] = c
     execfile(filename, globals(), loc)
 
-    # get buzzer groups
-    groups = []
-    for i in loc:
-        if isinstance(loc[i], BuzzerGroup):
-            groups.append(loc[i])
-    groups.sort(key=lambda x: x.prio)
-
-    return groups
