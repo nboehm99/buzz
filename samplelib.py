@@ -81,6 +81,7 @@ class SampleList:
     def __init__(self, filelist, order='linear'):
         self.samples = []
         self.filelist = filelist
+        self.order = order
         if order == 'random':
             self.next = self.__next_random
         else:
