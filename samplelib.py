@@ -69,14 +69,49 @@ class RandomSample:
     def __init__(self):
         pass
 
-
     def __repr__(self):
         return "RandomSample()"
-
 
     def run(self):
         s = random.choice(registered_samples)
         s.run()
+
+
+class SampleList:
+    def __init__(self, filelist, order='linear'):
+        self.samples = []
+        self.filelist = filelist
+        if order == 'random':
+            self.next = self.__next_random
+        else:
+            if order != 'linear':
+                print "Warning: unsupported sample list ordering '%s'. Using 'linear' instead." % order
+            self.next = self.__next_linear
+
+        for f in filelist:
+            self.samples.append(Sample(f))
+
+        self.num = len(self.samples)
+        self.last = -1
+
+
+    def __repr__(self):
+        return "SampleListi(%s, %s) % (self.filelist, self.order)"
+
+
+    def __next_random(self):
+        return random.choice(self.samples)
+
+
+    def __next_linear(self):
+        self.last = (self.last+1) % self.num
+        return self.samples[self.last]
+
+
+    def run(self):
+        s = self.next()
+        s.run()
+
 
 
 class Volume:
@@ -104,5 +139,6 @@ class Volume:
 
 actions.registerActionClass(Sample)
 actions.registerActionClass(RandomSample)
+actions.registerActionClass(SampleList)
 actions.registerActionClass(Volume)
 
