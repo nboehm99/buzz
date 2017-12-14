@@ -96,7 +96,7 @@ class SampleList:
 
 
     def __repr__(self):
-        return "SampleListi(%s, %s) % (self.filelist, self.order)"
+        return "SampleList(%s, %s)" % (self.filelist, self.order)
 
 
     def __next_random(self):
