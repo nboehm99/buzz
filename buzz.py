@@ -31,7 +31,7 @@ def setup():
     for i in inputregistry.getAll():
         it = threading.Thread(target=i.run)
         it.start()
-    messagequeue.send('Startup')
+    messagequeue.main.send('Startup')
 
 def loop(args):
     if args.interactive: 
@@ -41,7 +41,7 @@ def loop(args):
         ot.start()
         while True:
             s = raw_input('> ')
-            messagequeue.send(s)
+            messagequeue.main.send(s)
     else:
         print "(non-interactive)"
         output.run()
@@ -77,6 +77,6 @@ try:
 except:
     traceback.print_exc()
 
-messagequeue.send('Shutdown')
+messagequeue.main.send('Shutdown')
 cleanup()
 

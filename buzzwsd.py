@@ -19,7 +19,7 @@ class BuzzSocket(WebSocket):
         if self.data.startswith('buzz '):
             msg = self.data[5:]
             print "command:", msg
-            messagequeue.send(msg)
+            messagequeue.main.send(msg)
 
     def handleConnected(self):
         print self.address, 'connected'

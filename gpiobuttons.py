@@ -129,7 +129,7 @@ class RPiGpioInput:
             a = a + '+'
         print "[action] pressed = %s, pressedLong = %s, doubleClick = %s --> action = %s" % (self.pressed, 
                                                             pressedLong, doubleClick, a)
-        messagequeue.send(a)
+        messagequeue.main.send(a)
         self.pressed = set()
         return
 
