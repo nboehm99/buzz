@@ -4,12 +4,6 @@
 # also contains/imports the classes to be used in configuration files
 #
 
-#import handlers
-#from buzzgroup import BuzzerGroup, Sample
-
-# Options with their default - can be oerwritten by config file
-# Options = { 'TickTime': 0.02 }
-
 import buzzwsd
 import gpiobuttons
 import samplelib
