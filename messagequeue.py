@@ -17,4 +17,5 @@ class _qWrapper:
         return self._q.get(block=True)
 
 main = _qWrapper(5) # 5 is probably 4 too many
+leds = _qWrapper(5) # same here
 

@@ -10,6 +10,7 @@ import threading
 import config
 import messagequeue
 import output
+import ledoutput
 import inputregistry
 
 VERSION="0.90"
@@ -31,6 +32,7 @@ def setup():
     for i in inputregistry.getAll():
         it = threading.Thread(target=i.run)
         it.start()
+    ledoutput.setup()
     messagequeue.main.send('Startup')
 
 def loop(args):
@@ -50,6 +52,7 @@ def cleanup():
     print "Called cleanup()..."
     for i in inputregistry.getAll():
         i.stop()
+    ledoutput.stop()
     output.stop()
 
 

@@ -26,6 +26,7 @@ class RPiGpioInput:
         self.pressed = set()
         self.prev = set()
         self.hold = 0
+        self.STOP = False
         # configure gpio pins as input
         GPIO.setmode(GPIO.BOARD)
         for btn in self.buttons:
@@ -33,7 +34,7 @@ class RPiGpioInput:
 
     def run(self):
         try:
-            while True:
+            while not self.STOP:
                 btns = self.get_buttons()
                 self.handle(btns)
                 time.sleep(self.tick_time)
@@ -42,6 +43,8 @@ class RPiGpioInput:
             traceback.print_exc()
 
     def stop(self):
+        self.STOP = True
+        time.sleep(2 * self.tick_time)
         GPIO.cleanup()
 
     def get_buttons(self):
