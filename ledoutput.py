@@ -13,6 +13,42 @@ configuredLedOutputs = []
 
 STOPMSG='<!>STOP<!>'
 
+def _compilePattern(patternStr):
+    pattern = []
+    for l in patternStr.split('\n'):
+        line = l.strip()
+        if line.startswith('On'):
+            pattern.append(True)
+        elif line.startswith('Off'):
+            pattern.append(False)
+        elif line.startswith('Wait'):
+            pattern.append(float(line[4:]))
+        else:
+            # ignore
+            pass
+    return pattern
+
+defaultPattern = _compilePattern("""
+On
+Wait 1
+Off
+""")
+
+suffixPatterns = {
+'-': _compilePattern("""
+     On
+     Wait 2.2
+     Off"""),
+'+': _compilePattern("""
+     On
+     Wait 0.5
+     Off
+     Wait 0.5
+     On
+     Wait 0.5
+     Off""")
+}
+
 def addLedOutput(outputInstance):
     configuredLedOutputs.append(outputInstance)
 
@@ -62,14 +98,27 @@ class Leds74HC595:
 
 def _ledOutputThread():
     print "Starting 'LED output loop."
-    while True:
-        m = messagequeue.leds.receive()
-        if m == STOPMSG:
-            break
-        for i in configuredLedOutputs:
-            i.output(m, True)
-            time.sleep(1.2)
-            i.output(m, False)
+    msg = messagequeue.leds.receive()
+    while msg != STOPMSG:
+        pattern = defaultPattern
+        suffix = msg[-1]
+        if suffix in suffixPatterns.keys():
+            pattern = suffixPatterns[suffix]
+        newMsg = None
+        for step in pattern:
+            if type(step) == bool:
+                for i in configuredLedOutputs:
+                    i.output(msg, step)
+            else:
+                newMsg = messagequeue.leds.waitForMessage(step)
+                if newMsg != None:
+                    break
+        if newMsg != None:
+            for i in configuredLedOutputs:
+                i.output(msg, False)
+            msg = newMsg
+        else:
+            msg = messagequeue.leds.receive()
 
 def setup():
     if len(configuredLedOutputs) > 0:
