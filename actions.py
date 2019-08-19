@@ -19,7 +19,7 @@ class ActionList:
         self.actions = args
 
     def __repr__(self):
-        return "ActionList('%s')" % ", ".join(self.actions)
+        return "ActionList(%s)" % ", ".join(map(str,self.actions))
 
     def run(self):
         for a in self.actions:
@@ -31,7 +31,7 @@ class SetPrefix:
     def __init__(self, prefix):
         self.prefix = prefix
 
-    def __repr(self):
+    def __repr__(self):
         return "SetPrefix(%s)" % self.prefix
 
     def run(self):
