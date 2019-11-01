@@ -45,6 +45,7 @@ class Sample:
         else:
             print "Warning: invalid sample path '%s'. Ignored." % path
             
+        mpc.single(1)
         _disconnect(mpc)
         print "A glorious instance of the Sample-class was created (%s)" % path
 

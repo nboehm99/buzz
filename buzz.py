@@ -7,13 +7,14 @@ import sys
 import traceback
 import threading
 
+import actions
 import config
 import messagequeue
 import output
 import ledoutput
 import inputregistry
 
-VERSION="0.90"
+VERSION="0.91"
 
 def sighandler(signum, frame):
     print "Received SIGHUP. Restarting."
@@ -72,6 +73,9 @@ if args.version:
     print "buzz.py, version", VERSION
     sys.exit(0)
 
+# provide symbols to be used for config files
+for module in (actions, inputregistry, ledoutput):
+    config.addConfigSymbols(module.getConfigSymbols())
 config.load(args.configfile)
 
 try:

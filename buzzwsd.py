@@ -3,7 +3,7 @@
 # Implementation of RBTP (remote buzzer triggering protocol) over websocket
 #
 
-from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
+from simple_websocket_server import WebSocketServer, WebSocket
 
 import messagequeue
 import inputregistry
@@ -35,7 +35,7 @@ class WebSocketInput:
 
     def run(self):
         print "Starting server on localhost:%d" % self.port
-        self.wss = SimpleWebSocketServer('', self.port, BuzzSocket)
+        self.wss = WebSocketServer('', self.port, BuzzSocket)
         try:
             self.wss.serveforever()
         except:

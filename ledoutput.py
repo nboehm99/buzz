@@ -14,6 +14,11 @@ configuredLedOutputs = []
 STOPMSG='<!>STOP<!>'
 
 def _compilePattern(patternStr):
+    """
+    Compiles a simple language to a blink pattern that is parsed in the output thread.
+
+    There are probably a thousand ways to break this.
+    """
     pattern = []
     for l in patternStr.split('\n'):
         line = l.strip()
@@ -23,6 +28,8 @@ def _compilePattern(patternStr):
             pattern.append(False)
         elif line.startswith('Wait'):
             pattern.append(float(line[4:]))
+        elif line.startswith('BackTo'):
+            pattern.append(int(line[6:]-len(pattern)))
         else:
             # ignore
             pass
@@ -52,6 +59,12 @@ suffixPatterns = {
 def addLedOutput(outputInstance):
     configuredLedOutputs.append(outputInstance)
 
+def setLedPattern(suffix, patternStr):
+    pattern = _compilePattern(patternStr)
+    if suffix == None:
+        defaultPattern = pattern
+    else:
+        suffixPatterns[suffix] = pattern
 
 class Leds74HC595:
 
@@ -105,14 +118,25 @@ def _ledOutputThread():
         if suffix in suffixPatterns.keys():
             pattern = suffixPatterns[suffix]
         newMsg = None
-        for step in pattern:
+        l = len(pattern)
+        c = 0
+        # now for the magic: the blink pattern parsing
+        # blink patterns may consist one of three possible actions, as described below
+        while c < l:
+            step = pattern[c]
             if type(step) == bool:
+                # 1st: A bool value. Means turning the LEDs on or off
                 for i in configuredLedOutputs:
                     i.output(msg, step)
+            elif step < 0:
+                # 2nd: A negative integer. Rewinds the pattern, to be used for endless patterns.
+                c = c + step
             else:
+                # 3rd: A positive number. Determines the amount of time to wait until the next action.
                 newMsg = messagequeue.leds.waitForMessage(step)
                 if newMsg != None:
                     break
+            c = c + 1
         if newMsg != None:
             for i in configuredLedOutputs:
                 i.output(msg, False)
@@ -131,6 +155,11 @@ def setup():
 def stop():
     messagequeue.leds.send(STOPMSG)
 
+def getConfigSymbols():
+    m = {'addLedOutput': addLedOutput}
+    for i in allLedClasses:
+        m[i.__name__] = i
+    return m
 
 allLedClasses.append(Leds74HC595)
 

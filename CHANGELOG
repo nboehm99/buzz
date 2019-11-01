@@ -1,10 +1,7 @@
+Changes in V0.91
+-----------------
 
-Changes in V0.7
-----------------
-* Improve textual description
-* Improve multi-key detection in MultiHandler
-
-Changes in V0.6
-----------------
-* Button presses in can now be described textually
+* update dependencies from SimpleWebServer (abandoned) to simple_web_server
+* add bank switching support
+* add LED support using 74HC595 shift register
 

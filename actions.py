@@ -47,6 +47,7 @@ def execute(rawActionKey):
         action, led = actionMap[actionKey]
         print "Performing action", action
         if led:
+            print "With led:", actionKey
             messagequeue.leds.send(actionKey)
         action.run()
     else:
@@ -63,6 +64,12 @@ def setLedAction(actionKey, action):
 def registerActionClass(aClass):
     allActions.append(aClass)
 
+def getConfigSymbols():
+    m = {'setAction': setAction,
+         'setLedAction': setLedAction}
+    for a in allActions:
+        m[a.__name__] = a
+    return m
 
 registerActionClass(ActionList)
 registerActionClass(SetPrefix)

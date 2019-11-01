@@ -14,3 +14,9 @@ def getAll():
 def registerClass(iClass):
     allInputClasses.append(iClass)
  
+def getConfigSymbols():
+    m = {'addInput': addInput}
+    for i in allInputClasses:
+        m[i.__name__] = i
+    return m
+
