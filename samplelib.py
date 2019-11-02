@@ -31,22 +31,14 @@ class Sample:
         self.path = path
         self.fullpath = fullpath
         self.loop = loop
-        self.idx = -1
+        self.valid = False
 
-        mpc = _connect()
-        if len(registered_samples) == 0:
-            mpc.clear()
-        
         if os.path.isfile(fullpath):
-            mpc.add('file://' + fullpath)
+            self.valid = True
             registered_samples.append(self)
-            idx = len(registered_samples)
-            self.idx = idx-1
         else:
             print "Warning: invalid sample path '%s'. Ignored." % path
             
-        mpc.single(1)
-        _disconnect(mpc)
         print "A glorious instance of the Sample-class was created (%s)" % path
 
 
@@ -55,14 +47,16 @@ class Sample:
 
 
     def run(self):
-        if self.idx >= 0:
+        if self.valid:
             mpc = _connect()
             print "Running sample %s" % self
+            mpc.clear()
+            mpc.add('file://' + self.fullpath)
             if self.loop:
                 mpc.repeat(1)
             else:
                 mpc.repeat(0)
-            mpc.play(self.idx)
+            mpc.play()
             _disconnect(mpc)
 
 
