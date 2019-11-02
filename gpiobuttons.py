@@ -11,21 +11,28 @@ import time
 
 import traceback
 
+DOUBLE  = '+'
+LONG    = '-'
+REPEAT  = '='
+RELEASE = '$'
+
 class RPiGpioInput:
     def __init__(self, buttons, btnchrs, pushed_level = 0, tick_time=0.02, debounce=1, longpress=35,
-                 doubletimeout=10):
+                 longrepeat=25, doubletimeout=10):
         self.buttons = buttons
         self.btnchrs = btnchrs
         self.pushed_level = pushed_level
         self.tick_time = tick_time
         self.debounce = debounce
         self.longpress = longpress
+        self.longrepeat = longrepeat
         self.doubletimeout = doubletimeout
         # internal state
-        self.state=self.stateA # initial state
+        self.state=self.stateIdle # initial state
         self.pressed = set()
         self.prev = set()
         self.hold = 0
+        self.longhold = 0
         self.STOP = False
         # configure gpio pins as input
         GPIO.setmode(GPIO.BOARD)
@@ -68,72 +75,76 @@ class RPiGpioInput:
         self.prev = btns
         return
 
-    def stateA(self, btns):
-        # print "state A - nothing pressed so far"
+    def stateIdle(self, btns):
+        # print "state Idle - nothing pressed so far"
         if len(btns) != 0:
             self.pressed.update(btns)
-            # go to state B
-            self.state = self.stateB
+            # go to state Single
+            self.state = self.stateSingle
         return
 
-    def stateB(self, btns):
-        # print "state B - first press"
+    def stateSingle(self, btns):
+        # print "state Single - single push detected"
         if len(btns) == 0:
-            # released - go to state D
-            self.state = self.stateD
+            # released - go to state DoubleWait
+            self.state = self.stateDoubleWait
         elif self.hold == self.debounce:
             # update buttons
             self.pressed.update(btns)
         elif self.hold == self.longpress:
-            # long press - perform action and go to state C
-            self.state = self.stateC
-            self.action( pressedLong=True )
+            # long press - perform action and go to state Long
+            self.longhold = 0
+            self.state = self.stateLong
+            self.action(eventType=LONG, clear=False)
         return 
     
-    def stateC(self, btns):
-        # print "state C - long pressed; waiting for release"
+    def stateLong(self, btns):
+        # print "state Long - long push detected; waiting for release"
+        self.longhold = self.longhold + 1
         if len(btns) == 0:
-            # go to state A
-            self.state = self.stateA
+            # perform release action and go to state Idle
+            self.action(eventType=RELEASE)
+            self.state = self.stateIdle
+        elif self.longhold == self.longrepeat:
+            # perform repeat action
+            self.action(eventType=REPEAT, clear=False)
+            self.longhold = 0
         return
 
-    def stateD(self, btns):
-        # print "state D - released; waiting for double"
+    def stateDoubleWait(self, btns):
+        # print "state DoubleWait - first push released; waiting for double"
         if len(btns) != 0:  
-            # double click - go to state E
+            # double push - go to state Double
             self.pressed.update(btns)
-            self.state = self.stateE
+            self.state = self.stateDouble
         elif self.hold == self.doubletimeout:
-            # time out - perform (single-click) action and go to state A
-            self.state = self.stateA
+            # time out - perform (single-push) action and go to state Idle
+            self.state = self.stateIdle
             self.action()
         return
 
-    def stateE(self, btns):
-        # print "state E - double click; waiting for release"
+    def stateDouble(self, btns):
+        # print "state Double - double push; waiting for release"
         if len(btns) == 0:
-            # release - perform action and go to state A
-            self.state = self.stateA
-            self.action( doubleClick=True )
+            # release - perform action and go to state Idle
+            self.state = self.stateIdle
+            self.action(eventType=DOUBLE)
         elif self.hold == self.debounce:
             # update buttons
             self.pressed.update(btns)
         return
 
-    def action(self, pressedLong=False, doubleClick=False):
+    def action(self, eventType='', clear=True):
         # create string from buttons
         a = ''
         for i in range(0, len(self.buttons)):
             if self.buttons[i] in self.pressed:
                 a = a + self.btnchrs[i]
-        if pressedLong:
-            a = a + '-'
-        if doubleClick:
-            a = a + '+'
-        print "[action] pressed = %s, pressedLong = %s, doubleClick = %s --> action = %s" % (self.pressed, 
-                                                            pressedLong, doubleClick, a)
+        a = a + eventType
+        print "[action] pressed = %s, eventType = %s --> action = %s" % (self.pressed, eventType, a)
         messagequeue.main.send(a)
-        self.pressed = set()
+        if clear:
+            self.pressed = set()
         return
 
 
