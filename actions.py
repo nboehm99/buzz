@@ -40,11 +40,19 @@ class SetPrefix:
 
 
 def execute(rawActionKey):
+    action = None
+    led = None
     actionKey = rawActionKey
     if _prefix != None:
         actionKey = "%s:%s" % (_prefix, rawActionKey)
     if actionKey in actionMap.keys():
         action, led = actionMap[actionKey]
+    else:
+        print "No action registered for '%s'. Trying wildcard..." % actionKey
+        actionKey = "*:%s" % rawActionKey
+        if actionKey in actionMap.keys():
+            action, led = actionMap[actionKey]
+    if action != None:
         print "Performing action", action
         if led:
             print "With led:", actionKey
