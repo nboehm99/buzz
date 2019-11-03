@@ -21,9 +21,9 @@ class ActionList:
     def __repr__(self):
         return "ActionList(%s)" % ", ".join(map(str,self.actions))
 
-    def run(self):
+    def __call__(self):
         for a in self.actions:
-            a.run()
+            a()
 
 
 class SetPrefix:
@@ -34,7 +34,7 @@ class SetPrefix:
     def __repr__(self):
         return "SetPrefix(%s)" % self.prefix
 
-    def run(self):
+    def __call__(self):
         global _prefix
         _prefix = self.prefix
 
@@ -49,7 +49,7 @@ def execute(rawActionKey):
         if led:
             print "With led:", actionKey
             messagequeue.leds.send(actionKey)
-        action.run()
+        action()
     else:
         print "No action registered for '%s'" % actionKey
 

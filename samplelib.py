@@ -46,7 +46,7 @@ class Sample:
         return "Sample('%s', loop=%s)" % (self.path, self.loop)
 
 
-    def run(self):
+    def __call__(self):
         if self.valid:
             mpc = _connect()
             print "Running sample %s" % self
@@ -67,9 +67,9 @@ class RandomSample:
     def __repr__(self):
         return "RandomSample()"
 
-    def run(self):
+    def __call__(self):
         s = random.choice(registered_samples)
-        s.run()
+        s()
 
 
 class SampleList:
@@ -104,9 +104,9 @@ class SampleList:
         return self.samples[self.last]
 
 
-    def run(self):
+    def __call__(self):
         s = self.next()
-        s.run()
+        s()
 
 
 
@@ -120,7 +120,7 @@ class Volume:
         return "Volume(%d)" % (self.vol)
 
 
-    def run(self):
+    def __call__(self):
         mpc = _connect()
         oldvol = 0
         if not self.absolute:
