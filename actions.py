@@ -3,6 +3,7 @@
 # managing the actions
 #
 import messagequeue
+import os
 
 # 
 actionMap = {} # map of (action, led:bool)-tuples
@@ -14,7 +15,6 @@ allActions = []
 _prefix = None
 
 class ActionList:
-
     def __init__(self, *args):
         self.actions = args
 
@@ -27,7 +27,6 @@ class ActionList:
 
 
 class SetPrefix:
-
     def __init__(self, prefix):
         self.prefix = prefix
 
@@ -37,6 +36,17 @@ class SetPrefix:
     def __call__(self):
         global _prefix
         _prefix = self.prefix
+
+
+class System:
+    def __init__(self, commandline):
+        self.commandline = commandline
+
+    def __repr__(self):
+        return "SetPrefix('%s')" % self.commandline
+
+    def __call__(self):
+        os.system(self.commandline)
 
 
 def execute(rawActionKey):
@@ -86,4 +96,5 @@ def getConfigSymbols():
 
 registerActionClass(ActionList)
 registerActionClass(SetPrefix)
+registerActionClass(System)
 
