@@ -115,10 +115,8 @@ class Volume:
         self.vol = vol
         self.absolute = absolute
 
-
     def __repr__(self):
         return "Volume(%d)" % (self.vol)
-
 
     def __call__(self):
         mpc = _connect()
@@ -133,8 +131,75 @@ class Volume:
         mpc.setvol(newvol)
         _disconnect(mpc)
 
+
+class MpdPlayPause:
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "MpdPlayPause()"
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['state'] in ('play','pause'):
+            mpc.pause()
+        else:
+            mpc.play()
+        _disconnect(mpc)
+
+
+# mpd module's seekcur doesn't seem to work properly with negative offsets
+# so we use a manual workaround
+class MpdSeekBwd:
+    def __init__(self, offset):
+        self.offset = float(offset)
+
+    def __repr__(self):
+        return "MpdSeekBwd(%d)" % self.offset
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['state'] == 'play':
+            now = float(s['time'].split(':')[0])
+            then = now - self.offset
+            if then < 0:
+                then = 0
+            mpc.seekcur('%.2f' % then)
+        _disconnect(mpc)
+
+
+class MpdCommand:
+    def __init__(self, mname, *args):
+        self.mname = mname
+        self.args = args
+
+    def __repr__(self):
+        if len(self.args) > 0:
+            return "MpdCommand('%s', %s)" % (self.mname, ','.join(map(str, self.args)))
+        else:
+            return "MpdCommand('%s')" % (self.mname)
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['state'] == 'play':
+            func = getattr(mpc, self.mname)
+            func(*self.args)
+        _disconnect(mpc)
+
+
 actions.registerActionClass(Sample)
 actions.registerActionClass(RandomSample)
 actions.registerActionClass(SampleList)
 actions.registerActionClass(Volume)
+
+def getConfigSymbols():
+    m = {'MpdNext': MpdCommand('next'),
+         'MpdPrev': MpdCommand('previous'),
+         'MpdSeekFwd': MpdCommand('seekcur','+5'),
+         'MpdSeekBwd': MpdSeekBwd(5),
+         'MpdPlayPause': MpdPlayPause()}
+    return m
 

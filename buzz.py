@@ -13,6 +13,7 @@ import messagequeue
 import output
 import ledoutput
 import inputregistry
+import samplelib
 
 VERSION="0.91"
 
@@ -74,7 +75,7 @@ if args.version:
     sys.exit(0)
 
 # provide symbols to be used for config files
-for module in (actions, inputregistry, ledoutput):
+for module in (actions, inputregistry, ledoutput, samplelib):
     config.addConfigSymbols(module.getConfigSymbols())
 config.load(args.configfile)
 

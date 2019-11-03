@@ -64,9 +64,14 @@ def setLedAction(actionKey, action):
 def registerActionClass(aClass):
     allActions.append(aClass)
 
+def setInitialPrefix(prefix):
+    global _prefix
+    _prefix = prefix
+
 def getConfigSymbols():
     m = {'setAction': setAction,
-         'setLedAction': setLedAction}
+         'setLedAction': setLedAction,
+         'setInitialPrefix': setInitialPrefix}
     for a in allActions:
         m[a.__name__] = a
     return m
