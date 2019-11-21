@@ -18,19 +18,25 @@ import samplelib
 VERSION="0.91"
 
 def sighandler(signum, frame):
-    print "Received SIGHUP. Restarting."
-    # close GPIO, etc.
-    cleanup()
-    # restart
-    args=["python"]
-    args.extend(sys.argv)
-    os.execvp(args[0], args)
-    # should be unrechable
-    sys.exit(1)
-
+    print "Signal received:", signum
+    if signum == signal.SIGHUP:
+        print "Received SIGHUP. Restarting."
+        # close GPIO, etc.
+        cleanup()
+        # restart
+        args=["python"]
+        args.extend(sys.argv)
+        os.execvp(args[0], args)
+        # should be unrechable
+        sys.exit(1)
+    else:
+        messagequeue.main.send('Shutdown')
+        cleanup()
 
 def setup():
     signal.signal(signal.SIGHUP, sighandler)
+    signal.signal(signal.SIGTERM, sighandler)
+    signal.signal(signal.SIGINT, sighandler)
     for i in inputregistry.getAll():
         it = threading.Thread(target=i.run)
         it.start()

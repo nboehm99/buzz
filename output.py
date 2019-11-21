@@ -11,10 +11,11 @@ STOPMSG='<!>STOP<!>'
 def run():
     print "Starting output loop."
     while True:
-        m = messagequeue.main.receive()
+        m = messagequeue.main.waitForMessage(0.1)
         if m == STOPMSG:
             break
-        actions.execute(m)
+        elif m != None:
+            actions.execute(m)
 
 def stop():
     messagequeue.main.send(STOPMSG)
