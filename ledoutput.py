@@ -90,9 +90,11 @@ class Leds74HC595:
         for pin in (self.SER, self.SRCLK, self.RCLK):
             GPIO.setup(pin, GPIO.OUT)
             GPIO.output(pin, GPIO.LOW)
+        # initialize to OFF
         self.state = {}
         for c in self.chrs:
             self.state[c] = False
+        self.output('', False)
 
     def output(self, chrs, on):
         # update state
