@@ -149,6 +149,59 @@ class MpdPlayPause:
         _disconnect(mpc)
 
 
+class MpdToggleRepeat:
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "MpdToggleRepeat()"
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['repeat'] is '0':
+            mpc.repeat(1)
+        else:
+            mpc.repeat(0)
+        _disconnect(mpc)
+
+
+class MpdToggleSingle:
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "MpdToggleSingle()"
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['single'] is '0':
+            mpc.single(1)
+            mpc.repeat(1)
+        else:
+            mpc.single(0)
+            mpc.repeat(0)
+        _disconnect(mpc)
+
+
+class MpdToggleRandom:
+    def __init__(self):
+        pass
+
+    def __repr__(self):
+        return "MpdToggleRandom()"
+
+    def __call__(self):
+        mpc = _connect()
+        s = mpc.status()
+        if s['random'] is '0':
+            mpc.random(1)
+        else:
+            mpc.random(0)
+        _disconnect(mpc)
+
+
 # mpd module's seekcur doesn't seem to work properly with negative offsets
 # so we use a manual workaround
 class MpdSeekBwd:
@@ -200,6 +253,9 @@ def getConfigSymbols():
          'MpdPrev': MpdCommand('previous'),
          'MpdSeekFwd': MpdCommand('seekcur','+5'),
          'MpdSeekBwd': MpdSeekBwd(5),
-         'MpdPlayPause': MpdPlayPause()}
+         'MpdPlayPause': MpdPlayPause(),
+         'MpdToggleSingle': MpdToggleSingle(),
+         'MpdToggleRepeat': MpdToggleRepeat(),
+         'MpdToggleRandom': MpdToggleRandom()}
     return m
 
