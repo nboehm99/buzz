@@ -10,7 +10,7 @@ import actions
 
 registered_samples = []
 basedir = ''
-
+maxvolume = 100
 
 def _connect():
     mpc = mpd.MPDClient()
@@ -116,17 +116,18 @@ class Volume:
         self.absolute = absolute
 
     def __repr__(self):
-        return "Volume(%d)" % (self.vol)
+        return "Volume(%d, %s)" % (self.vol, self.absolute)
 
     def __call__(self):
         mpc = _connect()
+        global maxvolume
         oldvol = 0
         if not self.absolute:
             s = mpc.status()
             oldvol = int(s['volume'])
         newvol = oldvol + self.vol
         if newvol < 0: newvol = 0
-        if newvol > 100: newvol = 100
+        if newvol > maxvolume: newvol = maxvolume
         print "Setting volume to %s" % newvol
         mpc.setvol(newvol)
         _disconnect(mpc)
